@@ -1,6 +1,10 @@
 # WikiRacer
 
-## Let's play the Wikipedia game!
+## Let's beat the Wikipedia game!
+
+The Wikipedia game challenges players to navigate from one `Wikipedia` page to another using only links to other `Wikipedia` pages.
+
+This `WikiRacer` bot will play the Wiki game for you and find you a solution
 
 ![ezgif com-video-to-gif](https://github.com/triskit124/WikiRacer/assets/31640155/9194ae19-33b7-4548-9f78-5141e8631b8c)
 
