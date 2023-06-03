@@ -26,14 +26,6 @@ class WikiRacer {
     private:
 
         /**
-        Gets the raw HTML of a wikipedia page given its page name.
-        Great example here: https://gist.github.com/alghanmi/c5d7b761b2c9ab199157
-
-        @param page_name The name of the Wiki page. Must be the name given by the end of the URL of the page.
-        */
-        std::string getPageHTML(const std::string page_name);
-
-        /**
         Gets a set of all wikipedia pages linked to by the given page.
 
         @param page_name The name of the Wiki page. Must be the name given by the end of the URL of the page.
@@ -55,12 +47,6 @@ class WikiRacer {
         @param links_2 a set containing all links from page 2.
         */
         int countNumCommonLinks(const std::unordered_set<std::string>& links_1, const std::unordered_set<std::string>& links_2);
-        
-        /**
-        Callback used to write HTML page contents to a string.
-        */
-        static size_t _writeCallback(void *contents, size_t size, size_t nmemb, void *userp);
-
 };
 
 #endif // WIKIRACER_H

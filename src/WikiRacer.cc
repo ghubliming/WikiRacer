@@ -1,14 +1,15 @@
 #include "WikiRacer.h"
-#include <cstddef>
+#include "UrlRequest.h"
+
 #include <iostream>
 #include <algorithm>
-#include <string>
 #include <utility>
+
+#include <string>
 #include <vector>
-#include <unordered_set>
 #include <queue>
+#include <unordered_set>
 #include <unordered_map>
-#include "curl/curl.h"
 
 
 WikiRacer::WikiRacer() {
@@ -42,9 +43,7 @@ WikiRacer::WikiRacer() {
 }
 
 
-WikiRacer::~WikiRacer() {
-    
-}
+WikiRacer::~WikiRacer() {}
 
 std::vector<std::string> WikiRacer::getWikiGameSolution(const std::string& start_page, const std::string& end_page, unsigned int links_per_page_limit) {
     std::cout << "Looking for a path between " << start_page << " and " << end_page << " ..." << std::endl;
@@ -64,7 +63,8 @@ std::vector<std::string> WikiRacer::getWikiGameSolution(const std::string& start
 std::unordered_set<std::string> WikiRacer::getAllLinksOnPage(const std::string& page_name) {
     
     // Grab page's html content
-    const std::string page_html = WikiRacer::getPageHTML(page_name);
+    UrlRequest urlRequest;
+    const std::string page_html = urlRequest.getPageHTML(page_name);
     
     // All Wikipedia links start with this HTML pattern:
     const std::string wiki_link_start_pattern = "<a href=\"/wiki/";
@@ -90,6 +90,8 @@ std::unordered_set<std::string> WikiRacer::getAllLinksOnPage(const std::string& 
 
         // Ignore page names containing ":" and "#" as these are links to internal Wikipedia information
         if (page_name.find(":") == std::string::npos && page_name.find("#") == std::string::npos) {
+            // Decode URL to plaintext to handle special characters
+            page_name = urlRequest.decodeURL(page_name);
             page_names.insert(page_name);
         }
         start_pos = end_pos;
@@ -163,7 +165,7 @@ std::vector<std::string> WikiRacer::getPriorityLadderSolution(const std::string&
                 /* Count number of links candidate page has in common with end page */
                 int num_pages_in_common = WikiRacer::countNumCommonLinks(candidate_page_links, end_page_links);
 
-                std::cout << "\t\tProcessed (" << counter << " of " << current_page_links.size() << ") [" << num_pages_in_common << " of " << end_page_links.size() << " pages similar]:\t\t" << candidate_page << std::endl;
+                std::cout << "\t\tProcessed (" << counter << "\tof " << current_page_links.size() << ") [" << num_pages_in_common << "\tof " << end_page_links.size() << " pages similar]:\t" << candidate_page << std::endl;
                 
                 /* Push the candidate page to the priority queue */
                 queue.push(std::make_pair(candidate_page, num_pages_in_common));
@@ -178,35 +180,6 @@ std::vector<std::string> WikiRacer::getPriorityLadderSolution(const std::string&
     return solution;
 }
 
-std::string WikiRacer::getPageHTML(const std::string page_name) {
-    CURL* curl;
-    CURLcode result;
-    std::string page_url = "https://en.wikipedia.org/wiki/" + page_name;
-    std::string read_buffer;
-
-    curl = curl_easy_init();
-    if(curl) {
-        /* Set options */
-        curl_easy_setopt(curl, CURLOPT_URL, page_url.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WikiRacer::_writeCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
-
-        /* Perform the request */
-        result = curl_easy_perform(curl);
-
-        /* Perform cleanup */
-        curl_easy_cleanup(curl);
-
-        /* Check for errors */
-        if(result != CURLE_OK || read_buffer == "") {
-            throw std::runtime_error("\n\n\nERROR: page '" + page_name + "' not found!\nPlease enter a valid Wikipedia page name, which is found at the end of the page's URL.\n\tExample: 'Kalman_filter' (URL: https://en.wikipedia.org/wiki/Kalman_filter)\n\tExample: 'Simon_St%C3%A5lenhag' (URL: https://en.wikipedia.org/wiki/Simon_St%C3%A5lenhag)\n\n\n");
-        }
-        
-        return read_buffer;
-    } 
-    return "";
-}
-
 int WikiRacer::countNumCommonLinks(const std::unordered_set<std::string>& links_1, const std::unordered_set<std::string>& links_2) {
     int num = 0;
     for (std::string link : links_1) {
@@ -216,9 +189,3 @@ int WikiRacer::countNumCommonLinks(const std::unordered_set<std::string>& links_
     }
     return num;
 }
-
-size_t WikiRacer::_writeCallback(void *contents, size_t size, size_t nmemb, void *userp) {
-    ((std::string*)userp)->append((char*)contents, size * nmemb);
-    return size * nmemb;
-}
-

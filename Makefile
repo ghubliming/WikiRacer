@@ -21,7 +21,7 @@ BUILD = build/
 
 # define the executable file 
 #
-MAIN = $(BUILD)wikiracer
+MAIN = $(BUILD)wikiracer.exe
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
@@ -37,7 +37,7 @@ LIBS = -lcurl
 
 # define the C++ source files
 #
-SRCS = $(SOURCE)main.cc $(SOURCE)WikiRacer.cc
+SRCS = $(SOURCE)main.cc $(SOURCE)WikiRacer.cc $(SOURCE)UrlRequest.cc
 
 # define the C++ object files 
 #
