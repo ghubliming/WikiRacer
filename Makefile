@@ -59,7 +59,10 @@ OBJS = $(SRCS:.cc=.o)
 
 all: $(MAIN)
 
-$(MAIN): $(OBJS) 
+$(BUILD):
+	mkdir $(BUILD)
+
+$(MAIN): $(OBJS) $(BUILD)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
 	@echo "Finished building $(MAIN)"
 
@@ -71,7 +74,7 @@ $(MAIN): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 clean:
-	$(RM) *.o *~ $(MAIN)
+	$(RM) $(OBJS) *~ $(MAIN)
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^
