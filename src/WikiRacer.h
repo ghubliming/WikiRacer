@@ -21,7 +21,7 @@ class WikiRacer {
                           Example: "Simon_St%C3%A5lenhag" (URL: https://en.wikipedia.org/wiki/Simon_St%C3%A5lenhag)
         @param end_page The name of the Wiki page to end at.
         */
-        std::vector<std::string> getWikiGameSolution(const std::string& start_page, const std::string& end_page, unsigned int links_per_page_limit);
+        std::vector<std::string> getWikiGameSolution(const std::string& start_page, const std::string& end_page);
 
     private:
 
@@ -38,7 +38,7 @@ class WikiRacer {
         @param start_page_name The name of the Wiki page to start at. Must be the name given by the end of the URL of the page.
         @param end_page_name The name of the Wiki page to end at. Must be the name given by the end of the URL of the page.
         */
-        std::vector<std::string> getPriorityLadderSolution(const std::string& start_page_name, const std::string& end_page_name, unsigned int links_per_page_limit);
+        std::vector<std::string> getPriorityLadderSolution(const std::string& start_page_name, const std::string& end_page_name);
         
         /**
         Counts the numeber of Wikipedia links two pages have in common.

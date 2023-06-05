@@ -5,7 +5,7 @@ CC = g++
 #  -g    adds debugging information to the executable file
 #  -Wall turns on most, but not all, compiler warnings
 #
-CFLAGS = -g -Wall -O3
+CFLAGS = -g -Wall -O3 -fopenmp
 
 # define any directories containing header files other than /usr/include
 #

@@ -24,3 +24,12 @@ cd build
 - Sit back and relax while `WikiRacer` does the work for you!
 
 ![ezgif com-video-to-gif (1)](https://github.com/triskit124/WikiRacer/assets/31640155/5a999277-80d7-48b5-982b-4b320edcb114)
+
+
+## Enabling search parallelization for speed
+**NOTE:** please be nice to Wikipedia and don't abuse this capability. This will drastically inscrease the number of webpage queries per second.
+
+In `WikiRacer.cc`, define the number of threads you want to use. 
+```cpp
+#define PARALLELIZE_THREADS 4
+```

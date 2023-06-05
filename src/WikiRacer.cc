@@ -3,7 +3,9 @@
 
 #include <iostream>
 #include <algorithm>
+#include <stdexcept>
 #include <utility>
+#include <omp.h>
 
 #include <string>
 #include <vector>
@@ -11,6 +13,8 @@
 #include <unordered_set>
 #include <unordered_map>
 
+/* Uncomment to enable paralellization */
+// #define PARALLELIZE_THREADS 4
 
 WikiRacer::WikiRacer() {
     std::cout << R"(
@@ -45,10 +49,10 @@ WikiRacer::WikiRacer() {
 
 WikiRacer::~WikiRacer() {}
 
-std::vector<std::string> WikiRacer::getWikiGameSolution(const std::string& start_page, const std::string& end_page, unsigned int links_per_page_limit) {
+std::vector<std::string> WikiRacer::getWikiGameSolution(const std::string& start_page, const std::string& end_page) {
     std::cout << "Looking for a path between " << start_page << " and " << end_page << " ..." << std::endl;
 
-    std::vector<std::string> solution_path = WikiRacer::getPriorityLadderSolution(start_page, end_page, links_per_page_limit);
+    std::vector<std::string> solution_path = WikiRacer::getPriorityLadderSolution(start_page, end_page);
     
     /* Print out solution */
     std::cout << "Found solution: [";
@@ -99,7 +103,7 @@ std::unordered_set<std::string> WikiRacer::getAllLinksOnPage(const std::string& 
     return page_names;
 }
 
-std::vector<std::string> WikiRacer::getPriorityLadderSolution(const std::string& start_page_name, const std::string& end_page_name, const unsigned int links_per_page_limit) {
+std::vector<std::string> WikiRacer::getPriorityLadderSolution(const std::string& start_page_name, const std::string& end_page_name) {
 
     /* Store all links on end page */
     const std::unordered_set<std::string> end_page_links = WikiRacer::getAllLinksOnPage(end_page_name);
@@ -138,12 +142,19 @@ std::vector<std::string> WikiRacer::getPriorityLadderSolution(const std::string&
             break;
         }
 
-        size_t counter = 1;
-        for (std::string candidate_page : current_page_links) {
+        std::vector<std::string> current_pages(current_page_links.size());
+        std::copy(current_page_links.begin(), current_page_links.end(), current_pages.begin());
 
-            if (links_per_page_limit >= 0 && counter >= links_per_page_limit) {
-                break;
-            }
+#ifdef PARALLELIZE_THREADS
+if (PARALLELIZE_THREADS > 4) {
+    throw std::runtime_error("\n\nERROR: Please do not specify more than 4 threads with PARALLELIZE_THREADS. This will cause too many page requests per second.\n\n");
+}
+omp_set_num_threads(PARALLELIZE_THREADS);
+#pragma omp parallel for
+#endif
+        for (size_t i = 0; i < current_pages.size(); ++i) {
+
+            std::string candidate_page = current_pages[i];
 
             /* Process candidate page if it hasn't already been visited */
             if (!std::count(solution.begin(), solution.end(), candidate_page)) {
@@ -165,12 +176,10 @@ std::vector<std::string> WikiRacer::getPriorityLadderSolution(const std::string&
                 /* Count number of links candidate page has in common with end page */
                 int num_pages_in_common = WikiRacer::countNumCommonLinks(candidate_page_links, end_page_links);
 
-                std::cout << "\t\tProcessed (" << counter << "\tof " << current_page_links.size() << ") [" << num_pages_in_common << "\tof " << end_page_links.size() << " pages similar]:\t" << candidate_page << std::endl;
-                
+                std::cout << "\t\tProcessed (" << queue.size()+1 << "\tof " << current_page_links.size() << ") [" << num_pages_in_common << "\tof " << end_page_links.size() << " pages similar]:\t" << candidate_page << std::endl;
+
                 /* Push the candidate page to the priority queue */
                 queue.push(std::make_pair(candidate_page, num_pages_in_common));
-
-                counter++;
             }
         }
 

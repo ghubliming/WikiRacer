@@ -5,7 +5,6 @@ int main () {
 
     std::string start_page;
     std::string end_page;
-    unsigned int links_per_page_limit = -1; // use -1 for all pages
     WikiRacer wikiRacer;
 
     /* Ask user for start page */
@@ -17,7 +16,7 @@ int main () {
     std::cin >> end_page;
     std::cout << std::endl;
 
-    std::vector<std::string> solution = wikiRacer.getWikiGameSolution(start_page, end_page, links_per_page_limit);
+    std::vector<std::string> solution = wikiRacer.getWikiGameSolution(start_page, end_page);
 
     return 0;
 }
